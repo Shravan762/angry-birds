@@ -4,12 +4,14 @@ const Bodies = Matter.Bodies;
 const Constraint = Matter.Constraint;
 
 var engine, world;
-var box1, pig1;
+var box1, pig1,pig3;
 var backgroundImg,platform;
-var bird, sslingShot;
+var bird, slingshot;
+var gamestate="onSling"
+var score=0
 
 function preload() {
-    backgroundImg = loadImage("sprites/bg.png");
+   gettime()
 }
 
 function setup(){
@@ -36,25 +38,35 @@ function setup(){
     log4 = new Log(760,120,150, PI/7);
     log5 = new Log(870,120,150, -PI/7);
 
-    bird = new Bird(100,50);
+    bird = new Bird(200,50);
 
     //log6 = new Log(230,180,80, PI/2);
     slingshot = new SlingShot(bird.body,{x:200, y:50});
 }
 
 function draw(){
+    if(backgroundImg)
     background(backgroundImg);
+    noStroke()
+    textSize(35)
+    fill("white")
+    text("score"+ score , width-300, 50)
+
+    
+
     Engine.update(engine);
-    strokeWeight(4);
+    //strokeWeight(4);
     box1.display();
     box2.display();
     ground.display();
     pig1.display();
+    pig1.score();
     log1.display();
 
     box3.display();
     box4.display();
     pig3.display();
+    pig3.score();
     log3.display();
 
     box5.display();
@@ -68,16 +80,33 @@ function draw(){
 }
 
 function mouseDragged(){
+    if(gamestate !=="launched" ){
     Matter.Body.setPosition(bird.body, {x: mouseX , y: mouseY});
+    }
 }
 
 
 function mouseReleased(){
     slingshot.fly();
+    gamestate="launched"
 }
 
 function keyPressed(){
-    if(keyCode===32){
-    slingshot.attach(bird.body)
+    if(keyCode === 32){
+        slingshot.attach(bird.body);
     }
+}
+ async function gettime(){
+  var response= await fetch("https://worldtimeapi.org/api/timezone/Asia/Tokyo")  
+  var responseJSON= await response.json()
+  var datetime= responseJSON.datetime
+  var hour= datetime.slice(11,13)
+  if(hour>=06 && hour<=17){
+      bg="sprites/bg.png"
+  }
+  else
+  {
+      bg="sprites/bg2.jpg"
+  }
+  backgroundImg=loadImage(bg)
 }
